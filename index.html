@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>FamStream | Editor Mode</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; display: flex; flex-direction: column; align-items: center; padding: 40px; }
+        .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 400px; border-top: 5px solid #4a90e2; margin-bottom: 20px; }
+        #mainApp { display: none; }
+        input, select { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+        button { width: 100%; background-color: #4a90e2; color: white; border: none; padding: 15px; margin-top: 25px; border-radius: 6px; font-size: 16px; cursor: pointer; }
+        .event-card { background: #fff; border-radius: 8px; margin-top: 15px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: left; width: 400px; position: relative; }
+        .event-info { padding: 15px; border-left: 5px solid #2ecc71; }
+        .event-image { width: 100%; height: 200px; object-fit: cover; background-color: #ddd; display: block; }
+        .del-btn { position: absolute; top: 10px; right: 10px; background: rgba(231, 76, 60, 0.8); color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; }
+    </style>
+</head>
+<body>
+
+    <div id="loginScreen" class="container">
+        <h2>FamStream Login</h2>
+        <input type="password" id="familyPass" placeholder="Enter family2024">
+        <button onclick="checkPassword()">Access Vault</button>
+    </div>
+
+    <div id="mainApp">
+        <div class="container">
+            <h2>New Memory</h2>
+            <label>Event Name</label>
+            <input type="text" id="eventName">
+            <label>Type</label>
+            <select id="eventType">
+                <option value="Wedding">Wedding</option>
+                <option value="Funeral">Funeral (Private)</option>
+                <option value="Birthday">Birthday</option>
+            </select>
+            <label>Image URL or Filename</label>
+            <input type="text" id="eventImg" placeholder="e.g., event.jpg">
+            <label>Date</label>
+            <input type="datetime-local" id="eventDate">
+            <button onclick="addEvent()">Save Memory</button>
+        </div>
+        <div id="displayArea"></div>
+    </div>
+
+    <script>
+        function checkPassword() {
+            var pass = document.getElementById('familyPass').value;
+            if (pass === "family2024") {
+                document.getElementById('loginScreen').style.display = "none";
+                document.getElementById('mainApp').style.display = "block";
+                loadMemories();
+            } else { alert("Wrong code!"); }
+        }
+
+        function addEvent() {
+            var name = document.getElementById('eventName').value;
+            var type = document.getElementById('eventType').value;
+            var date = document.getElementById('eventDate').value;
+            var imgInput = document.getElementById('eventImg').value;
+            var img = imgInput ? imgInput : "https://unsplash.com";
+
+            if(!name || !date) return alert("Fill in the blanks!");
+
+            var savedMemories = JSON.parse(localStorage.getItem('famMemories')) || [];
+            savedMemories.push({ name: name, type: type, date: date, img: img });
+            localStorage.setItem('famMemories', JSON.stringify(savedMemories));
+
+            loadMemories();
+            document.getElementById('eventName').value = "";
+            document.getElementById('eventImg').value = "";
+        }
+
+        function loadMemories() {
+            var area = document.getElementById('displayArea');
+            area.innerHTML = "<h3>Scheduled Memories</h3>";
+            var savedMemories = JSON.parse(localStorage.getItem('famMemories')) || [];
+
+            savedMemories.forEach(function(event, index) {
+                var card = document.createElement('div');
+                card.className = 'event-card';
+                
+                var tag = (event.type === "Funeral") ? "<span style='color:red; font-size:12px;'>🔒 Private</span><br>" : "";
+                
+                card.innerHTML = '<button class="del-btn" onclick="deleteEvent(' + index + ')">Delete</button>' +
+                                 '<img src="' + event.img + '" class="event-image">' +
+                                 '<div class="event-info"><h4>' + event.name + '</h4>' + tag + 
+                                 '<p>' + event.type + ' • ' + event.date + '</p></div>';
+                
+                area.appendChild(card);
+            });
+        }
+
+        function deleteEvent(index) {
+            var savedMemories = JSON.parse(localStorage.getItem('famMemories')) || [];
+            savedMemories.splice(index, 1); // Remove the selected item
+            localStorage.setItem('famMemories', JSON.stringify(savedMemories));
+            loadMemories();
+        }
+    </script>
+</body>
+</html><!DOCTYPE html>
+<html>
+<head>
+    <title>FamStream | Editor Mode</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; display: flex; flex-direction: column; align-items: center; padding: 40px; }
+        .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 400px; border-top: 5px solid #4a90e2; margin-bottom: 20px; }
+        #mainApp { display: none; }
+        input, select { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+        button { width: 100%; background-color: #4a90e2; color: white; border: none; padding: 15px; margin-top: 25px; border-radius: 6px; font-size: 16px; cursor: pointer; }
+        .event-card { background: #fff; border-radius: 8px; margin-top: 15px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: left; width: 400px; position: relative; }
+        .event-info { padding: 15px; border-left: 5px solid #2ecc71; }
+        .event-image { width: 100%; height: 200px; object-fit: cover; background-color: #ddd; display: block; }
+        .del-btn { position: absolute; top: 10px; right: 10px; background: rgba(231, 76, 60, 0.8); color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; }
+    </style>
+</head>
+<body>
+
+    <div id="loginScreen" class="container">
+        <h2>FamStream Login</h2>
+        <input type="password" id="familyPass" placeholder="Enter family2024">
+        <button onclick="checkPassword()">Access Vault</button>
+    </div>
+
+    <div id="mainApp">
+        <div class="container">
+            <h2>New Memory</h2>
+            <label>Event Name</label>
+            <input type="text" id="eventName">
+            <label>Type</label>
+            <select id="eventType">
+                <option value="Wedding">Wedding</option>
+                <option value="Funeral">Funeral (Private)</option>
+                <option value="Birthday">Birthday</option>
+            </select>
+            <label>Image URL or Filename</label>
+            <input type="text" id="eventImg" placeholder="e.g., event.jpg">
+            <label>Date</label>
+            <input type="datetime-local" id="eventDate">
+            <button onclick="addEvent()">Save Memory</button>
+        </div>
+        <div id="displayArea"></div>
+    </div>
+
+    <script>
+        function checkPassword() {
+            var pass = document.getElementById('familyPass').value;
+            if (pass === "family2024") {
+                document.getElementById('loginScreen').style.display = "none";
+                document.getElementById('mainApp').style.display = "block";
+                loadMemories();
+            } else { alert("Wrong code!"); }
+        }
+
+        function addEvent() {
+            var name = document.getElementById('eventName').value;
+            var type = document.getElementById('eventType').value;
+            var date = document.getElementById('eventDate').value;
+            var imgInput = document.getElementById('eventImg').value;
+            var img = imgInput ? imgInput : "https://unsplash.com";
+
+            if(!name || !date) return alert("Fill in the blanks!");
+
+            var savedMemories = JSON.parse(localStorage.getItem('famMemories')) || [];
+            savedMemories.push({ name: name, type: type, date: date, img: img });
+            localStorage.setItem('famMemories', JSON.stringify(savedMemories));
+
+            loadMemories();
+            document.getElementById('eventName').value = "";
+            document.getElementById('eventImg').value = "";
+        }
+
+        function loadMemories() {
+            var area = document.getElementById('displayArea');
+            area.innerHTML = "<h3>Scheduled Memories</h3>";
+            var savedMemories = JSON.parse(localStorage.getItem('famMemories')) || [];
+
+            savedMemories.forEach(function(event, index) {
+                var card = document.createElement('div');
+                card.className = 'event-card';
+                
+                var tag = (event.type === "Funeral") ? "<span style='color:red; font-size:12px;'>🔒 Private</span><br>" : "";
+                
+                card.innerHTML = '<button class="del-btn" onclick="deleteEvent(' + index + ')">Delete</button>' +
+                                 '<img src="' + event.img + '" class="event-image">' +
+                                 '<div class="event-info"><h4>' + event.name + '</h4>' + tag + 
+                                 '<p>' + event.type + ' • ' + event.date + '</p></div>';
+                
+                area.appendChild(card);
+            });
+        }
+
+        function deleteEvent(index) {
+            var savedMemories = JSON.parse(localStorage.getItem('famMemories')) || [];
+            savedMemories.splice(index, 1); // Remove the selected item
+            localStorage.setItem('famMemories', JSON.stringify(savedMemories));
+            loadMemories();
+        }
+    </script>
+</body>
+</html>
