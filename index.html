@@ -1,200 +1,139 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>FamStream | Editor Mode</title>
+    <title>FamStream | The Family Hub</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; display: flex; flex-direction: column; align-items: center; padding: 40px; }
-        .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 400px; border-top: 5px solid #4a90e2; margin-bottom: 20px; }
-        #mainApp { display: none; }
-        input, select { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
-        button { width: 100%; background-color: #4a90e2; color: white; border: none; padding: 15px; margin-top: 25px; border-radius: 6px; font-size: 16px; cursor: pointer; }
-        .event-card { background: #fff; border-radius: 8px; margin-top: 15px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: left; width: 400px; position: relative; }
-        .event-info { padding: 15px; border-left: 5px solid #2ecc71; }
-        .event-image { width: 100%; height: 200px; object-fit: cover; background-color: #ddd; display: block; }
-        .del-btn { position: absolute; top: 10px; right: 10px; background: rgba(231, 76, 60, 0.8); color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; }
+        /* BASE DESIGN */
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; }
+        
+        /* THE INPUT CARD */
+        .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 500px; border-top: 6px solid #4a90e2; margin-bottom: 20px; }
+        #mainApp, #loginScreen { display: none; }
+        
+        input, select { width: 100%; padding: 12px; margin-top: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+        button { width: 100%; background-color: #4a90e2; color: white; border: none; padding: 15px; margin-top: 20px; border-radius: 6px; font-size: 16px; cursor: pointer; font-weight: bold; }
+
+        /* THE PROFESSIONAL CATEGORY BUTTONS */
+        .filter-group { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 500px; margin: 20px 0; }
+        .filter-btn { 
+            background: #fff; 
+            border: 2px solid #4a90e2; 
+            color: #4a90e2; 
+            padding: 15px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: 800; 
+            font-size: 18px; 
+            letter-spacing: 1px;
+            text-align: center;
+            transition: 0.3s;
+        }
+        .filter-btn:hover, .filter-btn.active { background: #4a90e2; color: white; transform: translateY(-2px); }
+
+        /* THE GALLERY GRID */
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; width: 100%; max-width: 1200px; margin-top: 30px; }
+        .event-card { background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .media-box { width: 100%; height: 200px; background: #000; }
+        iframe, video { width: 100%; height: 100%; border: none; }
+        .info { padding: 20px; text-align: left; border-left: 5px solid #2ecc71; }
+        .type-tag { font-size: 11px; color: #95a5a6; text-transform: uppercase; font-weight: bold; }
     </style>
 </head>
-<body>
+<body onload="initApp()">
 
+    <!-- 1. LOGIN SCREEN -->
     <div id="loginScreen" class="container">
         <h2>FamStream Login</h2>
         <input type="password" id="familyPass" placeholder="Enter family2024">
-        <button onclick="checkPassword()">Access Vault</button>
+        <button onclick="checkPassword()">Access the Vault</button>
     </div>
 
-    <div id="mainApp">
+    <!-- 2. MAIN APP HUB -->
+    <div id="mainApp" style="width: 100%; text-align: center; display: flex; flex-direction: column; align-items: center;">
         <div class="container">
-            <h2>New Memory</h2>
-            <label>Event Name</label>
-            <input type="text" id="eventName">
-            <label>Type</label>
+            <h2>Add to Hub</h2>
+            <input type="text" id="eventName" placeholder="Ceremony Name (e.g. Grandma's 80th)">
             <select id="eventType">
                 <option value="Wedding">Wedding</option>
-                <option value="Funeral">Funeral (Private)</option>
+                <option value="Funeral">Funeral</option>
                 <option value="Birthday">Birthday</option>
+                <option value="Gathering">Family Gathering</option>
+                <option value="Graduation">Graduation</option>
             </select>
-            <label>Image URL or Filename</label>
-            <input type="text" id="eventImg" placeholder="e.g., event.jpg">
-            <label>Date</label>
-            <input type="datetime-local" id="eventDate">
-            <button onclick="addEvent()">Save Memory</button>
+            <input type="text" id="mediaUrl" placeholder="Video filename or VDO link">
+            <button onclick="addEvent()">Save & Broadcast</button>
         </div>
-        <div id="displayArea"></div>
+
+        <!-- CATEGORY NAVIGATION -->
+        <div class="filter-group">
+            <button class="filter-btn active" onclick="filterBy('All', this)">All Memories</button>
+            <button class="filter-btn" onclick="filterBy('Wedding', this)">Weddings</button>
+            <button class="filter-btn" onclick="filterBy('Funeral', this)">Funerals</button>
+            <button class="filter-btn" onclick="filterBy('Birthday', this)">Birthdays</button>
+            <button class="filter-btn" onclick="filterBy('Gathering', this)">Family Gatherings</button>
+            <button class="filter-btn" onclick="filterBy('Graduation', this)">Graduations</button>
+        </div>
+
+        <div id="displayArea" class="gallery-grid"></div>
     </div>
 
     <script>
+        function initApp() { document.getElementById('loginScreen').style.display = "block"; }
+
         function checkPassword() {
-            var pass = document.getElementById('familyPass').value;
-            if (pass === "family2024") {
+            if (document.getElementById('familyPass').value === "family2024") {
                 document.getElementById('loginScreen').style.display = "none";
-                document.getElementById('mainApp').style.display = "block";
+                document.getElementById('mainApp').style.display = "flex";
                 loadMemories();
             } else { alert("Wrong code!"); }
         }
 
         function addEvent() {
-            var name = document.getElementById('eventName').value;
-            var type = document.getElementById('eventType').value;
-            var date = document.getElementById('eventDate').value;
-            var imgInput = document.getElementById('eventImg').value;
-            var img = imgInput ? imgInput : "https://unsplash.com";
+            var n = document.getElementById('eventName').value;
+            var t = document.getElementById('eventType').value;
+            var m = document.getElementById('mediaUrl').value;
+            if(!n || !m) return alert("Please fill in the fields!");
 
-            if(!name || !date) return alert("Fill in the blanks!");
-
-            var savedMemories = JSON.parse(localStorage.getItem('famMemories')) || [];
-            savedMemories.push({ name: name, type: type, date: date, img: img });
-            localStorage.setItem('famMemories', JSON.stringify(savedMemories));
-
+            var saved = JSON.parse(localStorage.getItem('famHub')) || [];
+            saved.push({ id: Date.now(), name: n, type: t, media: m });
+            localStorage.setItem('famHub', JSON.stringify(saved));
+            
             loadMemories();
             document.getElementById('eventName').value = "";
-            document.getElementById('eventImg').value = "";
+            document.getElementById('mediaUrl').value = "";
         }
 
-        function loadMemories() {
+        function loadMemories(filter = 'All') {
             var area = document.getElementById('displayArea');
-            area.innerHTML = "<h3>Scheduled Memories</h3>";
-            var savedMemories = JSON.parse(localStorage.getItem('famMemories')) || [];
+            area.innerHTML = "";
+            var saved = JSON.parse(localStorage.getItem('famHub')) || [];
+            
+            saved.forEach(e => {
+                if (filter === 'All' || e.type === filter) {
+                    var card = document.createElement('div');
+                    card.className = 'event-card';
+                    
+                    // Smart Player: Checks for Live link or Video file
+                    var mediaHtml = e.media.includes('vdo.ninja') 
+                        ? `<iframe src="${e.media}&autoplay=1" allow="camera;microphone"></iframe>`
+                        : `<video controls><source src="${e.media}"></video>`;
 
-            savedMemories.forEach(function(event, index) {
-                var card = document.createElement('div');
-                card.className = 'event-card';
-                
-                var tag = (event.type === "Funeral") ? "<span style='color:red; font-size:12px;'>🔒 Private</span><br>" : "";
-                
-                card.innerHTML = '<button class="del-btn" onclick="deleteEvent(' + index + ')">Delete</button>' +
-                                 '<img src="' + event.img + '" class="event-image">' +
-                                 '<div class="event-info"><h4>' + event.name + '</h4>' + tag + 
-                                 '<p>' + event.type + ' • ' + event.date + '</p></div>';
-                
-                area.appendChild(card);
+                    card.innerHTML = `
+                        <div class="media-box">${mediaHtml}</div>
+                        <div class="info">
+                            <span class="type-tag">${e.type}</span>
+                            <h4 style="margin: 5px 0 0 0;">${e.name}</h4>
+                        </div>`;
+                    area.appendChild(card);
+                }
             });
         }
 
-        function deleteEvent(index) {
-            var savedMemories = JSON.parse(localStorage.getItem('famMemories')) || [];
-            savedMemories.splice(index, 1); // Remove the selected item
-            localStorage.setItem('famMemories', JSON.stringify(savedMemories));
-            loadMemories();
-        }
-    </script>
-</body>
-</html><!DOCTYPE html>
-<html>
-<head>
-    <title>FamStream | Editor Mode</title>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; display: flex; flex-direction: column; align-items: center; padding: 40px; }
-        .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 400px; border-top: 5px solid #4a90e2; margin-bottom: 20px; }
-        #mainApp { display: none; }
-        input, select { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
-        button { width: 100%; background-color: #4a90e2; color: white; border: none; padding: 15px; margin-top: 25px; border-radius: 6px; font-size: 16px; cursor: pointer; }
-        .event-card { background: #fff; border-radius: 8px; margin-top: 15px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: left; width: 400px; position: relative; }
-        .event-info { padding: 15px; border-left: 5px solid #2ecc71; }
-        .event-image { width: 100%; height: 200px; object-fit: cover; background-color: #ddd; display: block; }
-        .del-btn { position: absolute; top: 10px; right: 10px; background: rgba(231, 76, 60, 0.8); color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; }
-    </style>
-</head>
-<body>
-
-    <div id="loginScreen" class="container">
-        <h2>FamStream Login</h2>
-        <input type="password" id="familyPass" placeholder="Enter family2024">
-        <button onclick="checkPassword()">Access Vault</button>
-    </div>
-
-    <div id="mainApp">
-        <div class="container">
-            <h2>New Memory</h2>
-            <label>Event Name</label>
-            <input type="text" id="eventName">
-            <label>Type</label>
-            <select id="eventType">
-                <option value="Wedding">Wedding</option>
-                <option value="Funeral">Funeral (Private)</option>
-                <option value="Birthday">Birthday</option>
-            </select>
-            <label>Image URL or Filename</label>
-            <input type="text" id="eventImg" placeholder="e.g., event.jpg">
-            <label>Date</label>
-            <input type="datetime-local" id="eventDate">
-            <button onclick="addEvent()">Save Memory</button>
-        </div>
-        <div id="displayArea"></div>
-    </div>
-
-    <script>
-        function checkPassword() {
-            var pass = document.getElementById('familyPass').value;
-            if (pass === "family2024") {
-                document.getElementById('loginScreen').style.display = "none";
-                document.getElementById('mainApp').style.display = "block";
-                loadMemories();
-            } else { alert("Wrong code!"); }
-        }
-
-        function addEvent() {
-            var name = document.getElementById('eventName').value;
-            var type = document.getElementById('eventType').value;
-            var date = document.getElementById('eventDate').value;
-            var imgInput = document.getElementById('eventImg').value;
-            var img = imgInput ? imgInput : "https://unsplash.com";
-
-            if(!name || !date) return alert("Fill in the blanks!");
-
-            var savedMemories = JSON.parse(localStorage.getItem('famMemories')) || [];
-            savedMemories.push({ name: name, type: type, date: date, img: img });
-            localStorage.setItem('famMemories', JSON.stringify(savedMemories));
-
-            loadMemories();
-            document.getElementById('eventName').value = "";
-            document.getElementById('eventImg').value = "";
-        }
-
-        function loadMemories() {
-            var area = document.getElementById('displayArea');
-            area.innerHTML = "<h3>Scheduled Memories</h3>";
-            var savedMemories = JSON.parse(localStorage.getItem('famMemories')) || [];
-
-            savedMemories.forEach(function(event, index) {
-                var card = document.createElement('div');
-                card.className = 'event-card';
-                
-                var tag = (event.type === "Funeral") ? "<span style='color:red; font-size:12px;'>🔒 Private</span><br>" : "";
-                
-                card.innerHTML = '<button class="del-btn" onclick="deleteEvent(' + index + ')">Delete</button>' +
-                                 '<img src="' + event.img + '" class="event-image">' +
-                                 '<div class="event-info"><h4>' + event.name + '</h4>' + tag + 
-                                 '<p>' + event.type + ' • ' + event.date + '</p></div>';
-                
-                area.appendChild(card);
-            });
-        }
-
-        function deleteEvent(index) {
-            var savedMemories = JSON.parse(localStorage.getItem('famMemories')) || [];
-            savedMemories.splice(index, 1); // Remove the selected item
-            localStorage.setItem('famMemories', JSON.stringify(savedMemories));
-            loadMemories();
+        function filterBy(category, btn) {
+            let btns = document.getElementsByClassName('filter-btn');
+            for(let b of btns) b.classList.remove('active');
+            btn.classList.add('active');
+            loadMemories(category);
         }
     </script>
 </body>
