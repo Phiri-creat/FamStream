@@ -1,194 +1,230 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>FamStream | Unified Hub</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FamStream | Professional Unified Hub</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #f0f4f8; display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; }
-        .container { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); width: 100%; max-width: 600px; margin-bottom: 20px; border-top: 6px solid #4a90e2; }
-        #mainApp, #loginScreen { display: none; width: 100%; }
+        :root { --primary: #4a90e2; --secondary: #2ecc71; --dark: #2c3e50; --danger: #e74c3c; --bg: #f8f9fa; }
         
-        /* FORM STYLING */
-        .input-group { margin-bottom: 15px; text-align: left; }
-        label { font-weight: bold; font-size: 14px; color: #34495e; }
-        input, select, textarea { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
-        .btn-primary { width: 100%; background: #4a90e2; color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        body { font-family: 'Inter', 'Segoe UI', sans-serif; background-color: var(--bg); color: var(--dark); margin: 0; display: flex; flex-direction: column; align-items: center; }
+        
+        /* HEADER & NAVIGATION */
+        header { background: white; width: 100%; padding: 15px 0; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 1000; }
+        .nav-tabs { display: flex; justify-content: center; gap: 10px; margin: 20px 0; width: 90%; }
+        .tab-btn { padding: 12px 24px; border: none; border-radius: 30px; background: #e0e6ed; cursor: pointer; font-weight: 600; transition: 0.3s; font-size: 14px; }
+        .tab-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3); }
 
-        /* TABS */
-        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-        .tab-btn { padding: 10px 20px; cursor: pointer; border: none; background: #dce4ec; border-radius: 20px; font-weight: bold; color: #7f8c8d; }
-        .tab-btn.active { background: #4a90e2; color: white; }
+        /* UNIFIED INPUT FORM */
+        .hub-form { background: white; padding: 25px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); width: 90%; max-width: 550px; margin-bottom: 30px; border-top: 6px solid var(--primary); }
+        .form-row { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-size: 13px; font-weight: 700; color: #7f8c8d; text-transform: uppercase; }
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #dfe6e9; border-radius: 8px; font-size: 15px; outline: none; }
+        input:focus { border-color: var(--primary); }
+        .submit-btn { width: 100%; background: var(--primary); color: white; border: none; padding: 15px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
 
-        /* CALENDAR & GRID */
-        .view-section { display: none; width: 100%; max-width: 1200px; }
-        .view-section.active { display: block; }
-        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .card { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 3px 10px rgba(0,0,0,0.05); position: relative; }
-        .media-prev { width: 100%; height: 180px; background: #000; display: flex; align-items: center; justify-content: center; }
-        .media-prev img, .media-prev video { width: 100%; height: 100%; object-fit: cover; }
-        .card-content { padding: 15px; border-left: 4px solid #2ecc71; }
-        .tag { font-size: 10px; font-weight: bold; color: #95a5a6; text-transform: uppercase; }
-        .delete-x { position: absolute; top: 5px; right: 5px; background: rgba(231,76,60,0.8); color: white; border: none; border-radius: 50%; cursor: pointer; }
+        /* STREAM & CALENDAR VIEWS */
+        .view-content { width: 95%; max-width: 1200px; display: none; animation: fadeIn 0.4s ease; }
+        .view-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* CALENDAR SPECIFIC */
-        .calendar-list { background: white; border-radius: 10px; padding: 15px; }
-        .event-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; align-items: center; }
-        .event-date { background: #4a90e2; color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; font-weight: bold; }
+        /* THE RESPONSIVE GRID */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; margin-bottom: 50px; }
+        .card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); position: relative; }
+        .media-container { width: 100%; height: 220px; background: #000; position: relative; }
+        img, video, iframe { width: 100%; height: 100%; object-fit: cover; border: none; }
+        
+        .card-info { padding: 18px; border-left: 5px solid var(--secondary); }
+        .card-info h4 { margin: 5px 0; font-size: 18px; }
+        .category-tag { font-size: 11px; background: #f1f2f6; padding: 4px 8px; border-radius: 4px; font-weight: bold; color: var(--primary); }
+
+        /* CALENDAR LIST STYLING */
+        .calendar-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .event-row { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #f1f2f6; gap: 20px; }
+        .date-badge { min-width: 60px; text-align: center; background: var(--primary); color: white; padding: 8px; border-radius: 8px; font-weight: bold; font-size: 12px; }
+        
+        .delete-icon { position: absolute; top: 10px; right: 10px; background: var(--danger); color: white; border: none; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; z-index: 5; }
+
+        /* MOBILE FIXES */
+        @media (max-width: 600px) {
+            .grid { grid-template-columns: 1fr; }
+            .hub-form { width: 85%; }
+            .nav-tabs { flex-wrap: wrap; }
+        }
     </style>
 </head>
-<body onload="initApp()">
+<body onload="checkSession()">
 
-    <div id="loginScreen" class="container" style="display:block; text-align:center;">
-        <h2>FamStream Login</h2>
-        <input type="password" id="pass" placeholder="Family Code">
-        <button class="btn-primary" onclick="login()">Enter Hub</button>
+    <header>
+        <h1 style="color:var(--primary); margin:0;">FamStream</h1>
+        <p style="font-size:12px; color:#95a5a6;">The Private Family Vault</p>
+    </header>
+
+    <!-- AUTHENTICATION -->
+    <div id="loginArea" class="hub-form" style="margin-top:50px; text-align:center;">
+        <h2>Family Access</h2>
+        <input type="password" id="accessCode" placeholder="Enter Code (family2024)">
+        <button class="submit-btn" onclick="verify()">Unlock Hub</button>
     </div>
 
-    <div id="mainApp" style="display:none; flex-direction:column; align-items:center;">
-        <!-- INPUT FORM -->
-        <div class="container">
-            <h2 id="formTitle">Add Memory or Schedule Event</h2>
-            <div class="input-group">
-                <label>Title</label>
-                <input type="text" id="title" placeholder="Graduation 2024, Family Dinner, etc.">
+    <!-- MAIN INTERFACE -->
+    <main id="appBody" style="display:none; width:100%; flex-direction:column; align-items:center;">
+        
+        <div class="hub-form">
+            <h3>Add to the Family Hub</h3>
+            <div class="form-row">
+                <label>Event Title</label>
+                <input type="text" id="title" placeholder="e.g. Michael's Graduation 2024">
             </div>
-            <div class="input-group">
+            <div class="form-row">
                 <label>Category</label>
-                <select id="cat">
+                <select id="category">
                     <option>Family Gathering</option>
                     <option>Graduation</option>
                     <option>Wedding</option>
                     <option>Funeral</option>
                     <option>Birthday</option>
-                    <option>Memory</option>
+                    <option>Special Memory</option>
                 </select>
             </div>
-            <div class="input-group">
-                <label>Date (For Calendar)</label>
-                <input type="date" id="eventDate">
+            <div class="form-row">
+                <label>Schedule Date (Optional for Calendar)</label>
+                <input type="date" id="date">
             </div>
-            <div class="input-group">
-                <label>Media: URL (Live/YouTube) OR File (Upload)</label>
-                <input type="text" id="urlInput" placeholder="Link here...">
-                <input type="file" id="fileInput" accept="image/*,video/*">
+            <div class="form-row">
+                <label>Media Link (YouTube/Live) or File Upload</label>
+                <input type="text" id="link" placeholder="Paste link here...">
+                <input type="file" id="file" style="margin-top:10px;">
             </div>
-            <button class="btn-primary" onclick="saveData()">Post & Sync</button>
+            <button class="submit-btn" onclick="handleUpload()">Post to Stream & Calendar</button>
         </div>
 
-        <!-- NAVIGATION TABS -->
-        <div class="tabs">
-            <button class="tab-btn active" onclick="showTab('stream', this)">Stream Hub</button>
-            <button class="tab-btn" onclick="showTab('calendar', this)">Event Schedule</button>
-        </div>
+        <nav class="nav-tabs">
+            <button class="tab-btn active" onclick="switchView('stream', this)">Memory Stream</button>
+            <button class="tab-btn" onclick="switchView('calendar', this)">Event Calendar</button>
+        </nav>
 
         <!-- STREAM VIEW -->
-        <div id="stream" class="view-section active">
-            <div id="mediaGrid" class="gallery-grid"></div>
-        </div>
+        <section id="stream" class="view-content active">
+            <div id="streamGrid" class="grid"></div>
+        </section>
 
         <!-- CALENDAR VIEW -->
-        <div id="calendar" class="view-section">
-            <div class="calendar-list" id="calendarList"></div>
-        </div>
-    </div>
+        <section id="calendar" class="view-content">
+            <div class="calendar-card" id="calendarList">
+                <!-- Events go here -->
+            </div>
+        </section>
+    </main>
 
     <script>
-        let db = JSON.parse(localStorage.getItem('famStreamDB')) || [];
+        let famData = JSON.parse(localStorage.getItem('famStream_V3')) || [];
 
-        function initApp() { console.log("System Ready"); }
-
-        function login() {
-            if(document.getElementById('pass').value === "family2024") {
-                document.getElementById('loginScreen').style.display = 'none';
-                document.getElementById('mainApp').style.display = 'flex';
-                render();
-            } else { alert("Access Denied"); }
+        function verify() {
+            if(document.getElementById('accessCode').value === "family2024") {
+                sessionStorage.setItem('auth', 'true');
+                checkSession();
+            } else { alert("Incorrect Family Code"); }
         }
 
-        async function saveData() {
+        function checkSession() {
+            if(sessionStorage.getItem('auth') === 'true') {
+                document.getElementById('loginArea').style.display = 'none';
+                document.getElementById('appBody').style.display = 'flex';
+                renderAll();
+            }
+        }
+
+        async function handleUpload() {
             const title = document.getElementById('title').value;
-            const category = document.getElementById('cat').value;
-            const date = document.getElementById('eventDate').value;
-            const url = document.getElementById('urlInput').value;
-            const file = document.getElementById('fileInput').files[0];
+            const cat = document.getElementById('category').value;
+            const date = document.getElementById('date').value;
+            const link = document.getElementById('link').value;
+            const fileInput = document.getElementById('file').files[0];
 
-            if(!title) return alert("Title required");
+            if(!title) return alert("Please provide a title");
 
-            let mediaSrc = url;
-            let mediaType = "link";
+            let mediaUrl = link;
+            let type = "link";
 
-            // If file is uploaded, convert to Base64 for local storage demo 
-            // (Note: localStorage has size limits, normally we'd use a server)
-            if(file) {
-                mediaType = file.type.startsWith('image') ? 'image' : 'video';
-                mediaSrc = await toBase64(file);
+            if(fileInput) {
+                type = fileInput.type.includes('image') ? 'image' : 'video';
+                mediaUrl = await toBase64(fileInput);
             }
 
-            db.push({ id: Date.now(), title, category, date, mediaSrc, mediaType });
-            localStorage.setItem('famStreamDB', JSON.stringify(db));
-            render();
-            resetForm();
+            famData.push({ id: Date.now(), title, cat, date, mediaUrl, type });
+            localStorage.setItem('famStream_V3', JSON.stringify(famData));
+            renderAll();
+            clearForm();
         }
 
-        const toBase64 = file => new Promise((res, rej) => {
+        const toBase64 = file => new Promise((res) => {
             const reader = new FileReader();
             reader.readAsDataURL(file);
             reader.onload = () => res(reader.result);
-            reader.onerror = error => rej(error);
         });
 
-        function render() {
-            const grid = document.getElementById('mediaGrid');
+        function renderAll() {
+            const grid = document.getElementById('streamGrid');
             const cal = document.getElementById('calendarList');
             grid.innerHTML = "";
-            cal.innerHTML = "<h3>Scheduled Events</h3>";
+            cal.innerHTML = "<h3 style='margin-bottom:20px;'>Upcoming Family Schedule</h3>";
 
-            // Sort by date for calendar
-            const sortedDb = [...db].sort((a,b) => new Date(a.date) - new Date(b.date));
-
-            db.forEach(item => {
-                // Media Card
-                const card = document.createElement('div');
-                card.className = 'card';
-                let mediaHtml = `<div class="media-prev"><p style="color:white">Live Link</p></div>`;
-                
-                if(item.mediaType === 'image') mediaHtml = `<div class="media-prev"><img src="${item.mediaSrc}"></div>`;
-                else if(item.mediaType === 'video') mediaHtml = `<div class="media-prev"><video controls src="${item.mediaSrc}"></video></div>`;
-                else if(item.mediaSrc.includes('youtube')) {
-                    let id = item.mediaSrc.split('v=')[1] || item.mediaSrc.split('/').pop();
-                    mediaHtml = `<div class="media-prev"><iframe src="https://youtube.com{id}"></iframe></div>`;
+            famData.forEach(item => {
+                // STREAM CARD
+                let mediaHtml = ``;
+                if(item.type === 'image') mediaHtml = `<img src="${item.mediaUrl}">`;
+                else if(item.type === 'video') mediaHtml = `<video controls src="${item.mediaUrl}"></video>`;
+                else if(item.mediaUrl.includes('youtube')) {
+                    let id = item.mediaUrl.split('v=')[1]?.split('&')[0] || item.mediaUrl.split('/').pop();
+                    mediaHtml = `<iframe src="https://youtube.com{id}"></iframe>`;
+                } else {
+                    mediaHtml = `<div style="color:white; display:flex; align-items:center; justify-content:center; height:100%;">Live Stream Link</div>`;
                 }
 
-                card.innerHTML = `${mediaHtml}<button class="delete-x" onclick="remove(${item.id})">×</button>
-                    <div class="card-content"><span class="tag">${item.category}</span><h4>${item.title}</h4></div>`;
-                grid.appendChild(card);
+                grid.innerHTML += `
+                    <div class="card">
+                        <button class="delete-icon" onclick="removeEntry(${item.id})">×</button>
+                        <div class="media-container">${mediaHtml}</div>
+                        <div class="card-info">
+                            <span class="category-tag">${item.cat}</span>
+                            <h4>${item.title}</h4>
+                        </div>
+                    </div>`;
 
-                // Calendar Entry
+                // CALENDAR ROW
                 if(item.date) {
-                    const row = document.createElement('div');
-                    row.className = 'event-item';
-                    row.innerHTML = `<span class="event-date">${item.date}</span> <strong>${item.title}</strong> <span>${item.category}</span>`;
-                    cal.appendChild(row);
+                    cal.innerHTML += `
+                        <div class="event-row">
+                            <div class="date-badge">${item.date}</div>
+                            <div>
+                                <strong>${item.title}</strong><br>
+                                <small style="color:#7f8c8d">${item.cat}</small>
+                            </div>
+                        </div>`;
                 }
             });
         }
 
-        function remove(id) {
-            db = db.filter(i => i.id !== id);
-            localStorage.setItem('famStreamDB', JSON.stringify(db));
-            render();
+        function removeEntry(id) {
+            if(confirm("Permanently delete this memory?")) {
+                famData = famData.filter(i => i.id !== id);
+                localStorage.setItem('famStream_V3', JSON.stringify(famData));
+                renderAll();
+            }
         }
 
-        function showTab(id, btn) {
-            document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+        function switchView(viewId, btn) {
+            document.querySelectorAll('.view-content').forEach(v => v.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
+            document.getElementById(viewId).classList.add('active');
             btn.classList.add('active');
         }
 
-        function resetForm() {
+        function clearForm() {
             document.getElementById('title').value = "";
-            document.getElementById('urlInput').value = "";
-            document.getElementById('fileInput').value = "";
+            document.getElementById('link').value = "";
+            document.getElementById('file').value = "";
         }
     </script>
 </body>
